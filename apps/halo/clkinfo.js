@@ -7,11 +7,11 @@
 
 	return {
 		name: "Bangle",
-		items: require("Storage").readJSON("recorder.json") ? [
+		items: require("Storage").readJSON("halo.json") ? [
 			{
 				name: "Toggle",
 				get: () => {
-					const w = typeof WIDGETS !== "undefined" && WIDGETS["recorder"];
+					const w = typeof WIDGETS !== "undefined" && WIDGETS["halo"];
 
 					return w && w.isRecording() ? {
 						text: "Recording",
@@ -24,7 +24,7 @@
 					};
 				},
 				run: () => {
-					const w = typeof WIDGETS !== "undefined" && WIDGETS["recorder"];
+					const w = typeof WIDGETS !== "undefined" && WIDGETS["halo"];
 					if(w){
 						Bangle.buzz();
 						w.setRecording(!w.isRecording(), { force: "append" });

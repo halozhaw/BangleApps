@@ -4,9 +4,9 @@
   let writeSubSecs; // true if we should write .1s for time, otherwise round to nearest second
 
   let loadSettings = function() {
-    var settings = require("Storage").readJSON("recorder.json",1)||{};
+    var settings = require("Storage").readJSON("halo.json",1)||{};
     settings.period = settings.period||10;
-    if (!settings.file || !settings.file.startsWith("recorder.log"))
+    if (!settings.file || !settings.file.startsWith("halo.log"))
       settings.recording = false;
     if (!settings.record)
       settings.record = ["hr"];
@@ -14,8 +14,8 @@
   }
 
   let updateSettings = function(settings) {
-    require("Storage").writeJSON("recorder.json", settings);
-    if (WIDGETS["recorder"]) WIDGETS["recorder"].reload();
+    require("Storage").writeJSON("halo.json", settings);
+    if (WIDGETS["halo"]) WIDGETS["halo"].reload();
   }
 
   let getRecorders = function() {
@@ -26,7 +26,7 @@
           raw = h.raw;
         }
         return {
-          name : "HR",
+          name : "hr",
           fields : ["Heartrate-raw"],
           getValues : () => {
             var r = [raw];
@@ -35,11 +35,11 @@
           },
           start : () => {
             Bangle.on('HRM-raw', onHRM);
-            Bangle.setHRMPower(1,"recorder");
+            Bangle.setHRMPower(1,"halo");
           },
           stop : () => {
             Bangle.removeListener('HRM-raw', onHRM);
-            Bangle.setHRMPower(0,"recorder");
+            Bangle.setHRMPower(0,"halo");
           },
         };
       },
@@ -55,10 +55,10 @@
             return [0, 0, 0, 0];
           },
           start : () => {
-            Bangle.setAccelPower(1, 'recorder');
+            Bangle.setAccelPower(1, 'halo');
           },
           stop : () => {
-            Bangle.setAccelPower(0, 'recorder');
+            Bangle.setAccelPower(0, 'halo');
           },
         };
       },
@@ -78,17 +78,17 @@
               return r;
           },
           start : () => {
-            Bangle.setBarometerPower(1,"recorder");
+            Bangle.setBarometerPower(1,"halo");
             Bangle.on('pressure', onPress);
           },
           stop : () => {
-            Bangle.setBarometerPower(0,"recorder");
+            Bangle.setBarometerPower(0,"halo");
             Bangle.removeListener('pressure', onPress);
           },
       }
     }
 
-    require("Storage").list(/^.*\.recorder\.js$/).forEach(fn=>eval(require("Storage").read(fn))(recorders));
+    require("Storage").list(/^.*\.halo\.js$/).forEach(fn=>eval(require("Storage").read(fn))(recorders));
     return recorders;
   }
 
@@ -108,7 +108,7 @@
   let getCSVHeaders = activeRecorders => ["Time"].concat(activeRecorders.map(r=>r.fields));
 
   let writeLog = function() {
-    WIDGETS["recorder"].draw();
+    WIDGETS["halo"].draw();
     try {
       var fields = [writeSubSecs?getTime().toFixed(1):Math.round(getTime())];
       activeRecorders.forEach(recorder => fields.push.apply(fields,recorder.getValues()));
@@ -119,7 +119,7 @@
       console.log("recorder: error", e);
       var settings = loadSettings();
       settings.recording = false;
-      require("Storage").write("recorder.json", settings);
+      require("Storage").write("halo.json", settings);
       reload();
     }
   }
@@ -140,7 +140,7 @@
       activeRecorders.forEach(activeRecorder => {
         activeRecorder.start();
       });
-      WIDGETS["recorder"].width = 15 + ((activeRecorders.length+1)>>1)*12; // 12px per recorder
+      WIDGETS["halo"].width = 15 + ((activeRecorders.length+1)>>1)*12; // 12px per recorder
       // open/create file
       if (require("Storage").list(settings.file).length) { // Append
         storageFile = require("Storage").open(settings.file,"a");
@@ -151,7 +151,7 @@
         storageFile.write(getCSVHeaders(activeRecorders).join(",")+"\n");
       }
       // start recording...
-      WIDGETS["recorder"].draw();
+      WIDGETS["halo"].draw();
       writeSubSecs = settings.period===1;
       if (settings.period===1 && settings.record.includes("gps")) {
         Bangle.on('GPS', writeLog);
@@ -160,12 +160,12 @@
         writeSetup = setInterval(writeLog, settings.period*1000, settings.period);
       }
     } else {
-      WIDGETS["recorder"].width = 0;
+      WIDGETS["halo"].width = 0;
       storageFile = undefined;
     }
   }
   // add the widget
-  WIDGETS["recorder"]={area:"tl",width:0,draw:function() {
+  WIDGETS["halo"]={area:"tl",width:0,draw:function() {
     if (!writeSetup) return;
     g.reset().drawImage(atob("DRSBAAGAHgDwAwAAA8B/D/hvx38zzh4w8A+AbgMwGYDMDGBjAA=="),this.x+1,this.y+2);
     activeRecorders.forEach((recorder,i)=>{
@@ -184,8 +184,8 @@
     options = options||{};
     if (isOn && !settings.recording) {
       var date=(new Date()).toISOString().substr(0,10).replace(/-/g,""), trackNo=10;
-      function getTrackFilename() { return "recorder.log" + date + trackNo.toString(36) + ".csv"; }
-      if (!settings.file || !settings.file.startsWith("recorder.log" + date)) {
+      function getTrackFilename() { return "halo.log" + date + trackNo.toString(36) + ".csv"; }
+      if (!settings.file || !settings.file.startsWith("halo.log" + date)) {
         // if no filename set or date different, set up a new filename
         settings.file = getTrackFilename();
       }
@@ -198,14 +198,14 @@
         if (!options.force) { // if not forced, ask the question
           g.reset(); // work around bug in 2v17 and earlier where bg color wasn't reset
           return E.showPrompt(
-                    /*LANG*/"Overwrite\nLog " + settings.file.match(/^recorder\.log(.*)\.csv$/)[1] + "?",
-                    { title:/*LANG*/"Recorder",
+                    /*LANG*/"Overwrite\nLog " + settings.file.match(/^halo\.log(.*)\.csv$/)[1] + "?",
+                    { title:/*LANG*/"Halo Logger",
                       buttons:{/*LANG*/"Yes":"overwrite",/*LANG*/"No":"cancel",/*LANG*/"New":"new",/*LANG*/"Append":"append"}
                     }).then(selection=>{
             if (selection==="cancel") return false; // just cancel
-            if (selection==="overwrite") return WIDGETS["recorder"].setRecording(1,{force:"overwrite"});
-            if (selection==="new") return WIDGETS["recorder"].setRecording(1,{force:"new"});
-            if (selection==="append") return WIDGETS["recorder"].setRecording(1,{force:"append"});
+            if (selection==="overwrite") return WIDGETS["halo"].setRecording(1,{force:"overwrite"});
+            if (selection==="new") return WIDGETS["halo"].setRecording(1,{force:"new"});
+            if (selection==="append") return WIDGETS["halo"].setRecording(1,{force:"append"});
             throw new Error("Unknown response!");
           });
         } else if (options.force=="append") {
@@ -226,7 +226,7 @@
     }
     settings.recording = isOn;
     updateSettings(settings);
-    WIDGETS["recorder"].reload();
+    WIDGETS["halo"].reload();
     return Promise.resolve(settings.recording);
   },
   }};

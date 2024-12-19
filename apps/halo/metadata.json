@@ -17,7 +17,7 @@
     {"name":"halo.settings.js","url":"settings.js"}
   ],
   "data": [
-    {"name":"recorder.json","url":"app-settings.json"},
+    {"name":"halo.json","url":"app-settings.json"},
     {"wildcard":"halo.log?.csv","storageFile":true}
   ]
 }

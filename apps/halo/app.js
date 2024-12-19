@@ -3,35 +3,30 @@ Bangle.drawWidgets();
 
 var settings;
 
-var osm;
-try { // if it's installed, use the OpenStreetMap module
-  osm = require("openstmap");
-} catch (e) {}
-
 function loadSettings() {
-  settings = require("Storage").readJSON("recorder.json",1)||{};
+  settings = require("Storage").readJSON("halo.json",1)||{};
   var changed = false;
   if (!settings.file) {
     changed = true;
-    settings.file = "recorder.log0.csv";
+    settings.file = "halo.log0.csv";
   }
   if (!Array.isArray(settings.record)) {
-    settings.record = ["gps"];
+    settings.record = ["hr"];
     changed = true;
   }
   if (changed)
-    require("Storage").writeJSON("recorder.json", settings);
+    require("Storage").writeJSON("halo.json", settings);
 }
 loadSettings();
 
 function updateSettings() {
-  require("Storage").writeJSON("recorder.json", settings);
-  if (WIDGETS["recorder"])
-    WIDGETS["recorder"].reload();
+  require("Storage").writeJSON("halo.json", settings);
+  if (WIDGETS["halo"])
+    WIDGETS["halo"].reload();
 }
 
 function getTrackNumber(filename) {
-  var matches = filename.match(/^recorder\.log(.*)\.csv$/);
+  var matches = filename.match(/^halo\.log(.*)\.csv$/);
   if (matches) return matches[1];
   return 0;
 }
@@ -49,14 +44,15 @@ function showMainMenu() {
     };
   }
   const mainmenu = {
-    '': { 'title': /*LANG*/'Recorder' },
+    '': { 'title': /*LANG*/'
+' },
     '< Back': ()=>{load();},
     /*LANG*/'RECORD': {
       value: !!settings.recording,
       onchange: v => {
         setTimeout(function() {
           E.showMenu();
-          WIDGETS["recorder"].setRecording(v).then(function() {
+          WIDGETS["halo"].setRecording(v).then(function() {
             //print("Record start Complete");
             loadSettings();
             //print("Recording: "+settings.recording);
@@ -80,7 +76,7 @@ function showMainMenu() {
       }
     }
   };
-  var recorders = WIDGETS["recorder"].getRecorders();
+  var recorders = WIDGETS["halo"].getRecorders();
   Object.keys(recorders).forEach(id=>{
     mainmenu[/*LANG*/"Log "+recorders[id]().name] = menuRecord(id);
   });
@@ -95,7 +91,7 @@ function viewTracks() {
     '': { 'title': /*LANG*/'Tracks' }
   };
   var found = false;
-  require("Storage").list(/^recorder\.log.*\.csv$/,{sf:true}).reverse().forEach(filename=>{
+  require("Storage").list(/^halo\.log.*\.csv$/,{sf:true}).reverse().forEach(filename=>{
     found = true;
     menu[/*LANG*/getTrackNumber(filename)] = ()=>viewTrack(filename,false);
   });
@@ -175,29 +171,6 @@ function viewTrack(filename, info) {
     menu[info.time.toISOString().substr(0,16).replace("T"," ")] = {};
   menu["Duration"] = { value : asTime(info.duration)};
   menu["Records"] = { value : ""+info.records };
-  if (info.fields.includes("Latitude"))
-    menu[/*LANG*/'Plot Map'] = function() {
-      info.qOSTM = false;
-      plotTrack(info);
-    };
-  if (osm && info.fields.includes("Latitude"))
-    menu[/*LANG*/'Plot OpenStMap'] = function() {
-      info.qOSTM = true;
-      plotTrack(info);
-    }
-  if (info.fields.includes("Altitude") ||
-      info.fields.includes("Barometer Altitude"))
-    menu[/*LANG*/'Plot Alt.'] = function() {
-      plotGraph(info, "Altitude");
-    };
-  if (info.fields.includes("Latitude"))
-    menu[/*LANG*/'Plot Speed'] = function() {
-      plotGraph(info, "Speed");
-    };
-  if (info.fields.includes("Heartrate"))
-    menu[/*LANG*/'Plot HRM'] = function() {
-      plotGraph(info, "Heartrate");
-    };
   // TODO: steps, heart rate?
   menu[/*LANG*/'Erase'] = function() {
     E.showPrompt(/*LANG*/"Delete Track?").then(function(v) {

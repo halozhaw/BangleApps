@@ -44,8 +44,7 @@ function showMainMenu() {
     };
   }
   const mainmenu = {
-    '': { 'title': /*LANG*/'
-' },
+    '': { 'title': /*LANG*/'' },
     '< Back': ()=>{load();},
     /*LANG*/'RECORD': {
       value: !!settings.recording,

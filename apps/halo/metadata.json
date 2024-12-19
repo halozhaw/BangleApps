@@ -2,7 +2,7 @@
   "id": "halo",
   "name": "halo logger",
   "shortName": "Logger",
-  "version": "0.2",
+  "version": "0.25",
   "description": "Record heart rate, temp and IMU in the background, then download to your PC.",
   "icon": "app.png",
   "tags": "tool,outdoors,gps,widget,clkinfo",

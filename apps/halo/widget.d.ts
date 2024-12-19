@@ -1,4 +1,4 @@
-type RecorderWidget = Widget & {
+type HaloWidget = Widget & {
 	getRecorders(): Recorders;
 
 	reload(): void,
@@ -10,31 +10,15 @@ type RecorderWidget = Widget & {
 		options?: { force?: "append" | "new" | "overwrite" },
 	): Promise<boolean>;
 
-	plotTrack(
-		m: unknown /* osm module */,
-		options?: {
-			async: true,
-			callback?: ()=>void,
-		}
-	): { stop(): void };
-	plotTrack(
-		m: unknown /* osm module */,
-		options?: {
-			async?: false,
-			callback?: ()=>void,
-		}
-	): void;
-};
 
 type Recorders = {
-	[key: string]: Recorder;
+	[key: string]: Halo;
 };
 
-type Recorder = () => {
+type Halo = () => {
 	name: string,
 	fields: string[],
 	getValues(): unknown[],
 	start(): void,
 	stop(): void,
-	draw(x: number, y: number): void,
 };

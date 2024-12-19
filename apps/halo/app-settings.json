@@ -1,5 +1,5 @@
 {
   "recording":false,
-  "period":10,
-  "record" : ["gps"]
+  "period":5,
+  "record" : ["hr"]
 }

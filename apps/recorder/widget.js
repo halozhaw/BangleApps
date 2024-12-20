@@ -21,81 +21,43 @@
 
   let getRecorders = function() {
     var recorders = {
-      gps:function() {
-        var lat = 0;
-        var lon = 0;
-        var alt = 0;
-        var samples = 0;
-        var hasFix = 0;
-        function onGPS(f) {
-          hasFix = f.fix;
-          if (!hasFix) return;
-          lat += f.lat;
-          lon += f.lon;
-          alt += f.alt;
-          samples++;
-        }
-        return {
-          name : "GPS",
-          fields : ["Latitude","Longitude","Altitude"],
-          getValues : () => {
-            var r = ["","",""];
-            if (samples)
-              r = [(lat/samples).toFixed(6),(lon/samples).toFixed(6),Math.round(alt/samples)];
-            samples = 0; lat = 0; lon = 0; alt = 0;
-            return r;
-          },
-          start : () => {
-            hasFix = false;
-            Bangle.on('GPS', onGPS);
-            Bangle.setGPSPower(1,"recorder");
-          },
-          stop : () => {
-            hasFix = false;
-            Bangle.removeListener('GPS', onGPS);
-            Bangle.setGPSPower(0,"recorder");
-          },
-          draw : (x,y) => g.setColor(hasFix?"#0f0":"#f88").drawImage(atob("DAwBEAKARAKQE4DwHkPqPRGKAEAA"),x,y)
-        };
-      },
       hrm:function() {
-        var bpm = "", bpmConfidence = "", src="";
+        var hrraw = "";
         function onHRM(h) {
-          bpmConfidence = h.confidence;
-          bpm = h.bpm;
-          src = h.src;
+          hrraw = h.hrraw;
         }
         return {
           name : "HR",
-          fields : ["Heartrate", "Confidence", "Source"],
+          fields : ["Heartrate"],
           getValues : () => {
-            var r = [bpm,bpmConfidence,src];
-            bpm = ""; bpmConfidence = ""; src="";
+            var r = [hrraw];
+            hrraw = "";
             return r;
           },
           start : () => {
-            Bangle.on('HRM', onHRM);
+            Bangle.on('HRM-raw', onHRM);
             Bangle.setHRMPower(1,"recorder");
           },
           stop : () => {
-            Bangle.removeListener('HRM', onHRM);
+            Bangle.removeListener('HRM-raw', onHRM);
             Bangle.setHRMPower(0,"recorder");
           },
-          draw : (x,y) => g.setColor(Bangle.isHRMOn()?"#f00":"#f88").drawImage(atob("DAwBAAAAMMeef+f+f+P8H4DwBgAA"),x,y)
         };
       },
-      bat:function() {
+      accel:function() {
         return {
-          name : "BAT",
-          fields : ["Battery Percentage", "Battery Voltage", "Charging"],
+          name : "Accel",
+          fields : ["y", "y", "z"],
           getValues : () => {
-            return [E.getBattery(), NRF.getBattery(), Bangle.isCharging()];
+            const accel = Bangle.getAccel();
+            return [accel.x, accel.y, accel.z];
           },
           start : () => {
+            Bangle.setAccelPower(1, 'recorder');
           },
           stop : () => {
+            Bangle.setAccelPower(0, 'recorder');
           },
-          draw : (x,y) => g.setColor(Bangle.isCharging() ? "#0f0" : "#ff0").drawImage(atob("DAwBAABgH4G4EYG4H4H4H4GIH4AA"),x,y)
         };
       },
       steps:function() {
@@ -110,7 +72,6 @@
           },
           start : () => { lastSteps = Bangle.getStepCount(); },
           stop : () => {},
-          draw : (x,y) => g.reset().drawImage(atob("DAwBAAMMeeeeeeeecOMMAAMMMMAA"),x,y)
         };
       }
     };
@@ -140,7 +101,6 @@
             Bangle.setBarometerPower(0,"recorder");
             Bangle.removeListener('pressure', onPress);
           },
-          draw : (x,y) => g.setColor("#0f0").drawImage(atob("DAwBAAH4EIHIEIHIEIHIEIEIH4AA"),x,y)
         };
       }
     }

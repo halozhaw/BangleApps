@@ -22,6 +22,7 @@ function recordLineToObject(l, hasRecordNbr) {
     time: parseInt(t[n+0]),
     bpm: parseFloat(t[n+1]),
     confidence: parseFloat(t[n+2]),
+    raw: parseFloat(t[n+3]),
   };
   if (hasRecordNbr)
     o.number = t[0];

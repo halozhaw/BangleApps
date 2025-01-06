@@ -10,7 +10,7 @@
 var domRecords = document.getElementById("records");
 
 function saveRecord(record,name) {
-  var csv = `${record.map(rec=>[rec.time, rec.bpm, rec.confidence].join(",")).join("\n")}`;
+  var csv = `${record.map(rec=>[rec.time, rec.bpm, rec.confidence, rec.raw].join(",")).join("\n")}`;
   Util.saveCSV(name, csv);
 }
 

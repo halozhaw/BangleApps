@@ -26,11 +26,12 @@
   function reload() {
     settings = require("Storage").readJSON("heart.json",1)||{};
     settings.fileNbr |= 0;
-
-    Bangle.removeListener('HRM',onHRM);
+    // Bangle.removeListener('HRM',onHRM);
+    Bangle.removeListener('HRM-raw',onHRM);
     if (settings.isRecording) {
       WIDGETS["heart"].width = 24;
-      Bangle.on('HRM',onHRM);
+      // Bangle.on('HRM',onHRM);
+      Bangle.on('HRM-raw',onHRM);
       Bangle.setHRMPower(1,"heart");
       var n = settings.fileNbr.toString(36);
       recFile = require("Storage").open(".heart"+n,"a");

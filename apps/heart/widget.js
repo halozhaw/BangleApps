@@ -19,7 +19,7 @@
   function onHRM(hrm) {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
-    if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw].join(",")+"\n");
+    if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw, accel.x, accel.y, accel.x].join(",")+"\n");
   }
 
   // Called by the heart app to reload settings and decide what's

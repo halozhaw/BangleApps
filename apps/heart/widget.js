@@ -16,7 +16,7 @@
     g.setColor(-1); // change color back to be nice to other apps
   }
 
-  function onHRM(hrm) {
+  function onHRM(hrm, accel) {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
     if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw, accel.x, accel.y, accel.x].join(",")+"\n");

@@ -52,8 +52,12 @@ function parseBinaryData(binaryData) {
     var accelX = view.getInt16(offset + 9, true) / 100;
     var accelY = view.getInt16(offset + 11, true) / 100;
     var accelZ = view.getInt16(offset + 13, true) / 100;
-
-    record.push({
+      // Debugging output
+      console.log(`Record ${i + 1}:`);
+      console.log(`Time: ${time}`);
+      console.log(`BPM: ${bpm}, Confidence: ${confidence}, Raw: ${raw}`);
+      console.log(`Accel X: ${accelX}, Y: ${accelY}, Z: ${accelZ}`);
+      record.push({
       time: time,
       bpm: bpm,
       confidence: confidence,

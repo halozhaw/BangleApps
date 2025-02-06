@@ -1,89 +1,99 @@
-<script>
-  var domRecords = document.getElementById("records");
-  
-  function saveRecord(record, name) {
-    // Here you save the raw binary data as a binary file (.bin)
-    Util.saveFile(name, record);  // Using Util.saveFile to save the raw data
-  }
-  
-  function downloadRecord(recordNbr, callback) {
-    Util.showModal("Downloading heart rate record...");
-    Util.readStorageFile(`.heart${recordNbr.toString(36)}`, data => {
-      Util.hideModal();
-      // Now just pass the raw binary data to the callback
-      callback(data);  // Pass raw data without processing
-    });
-  }
-  
-  function getRecordList() {
-    Util.showModal("Loading heart rate records...");
-    domRecords.innerHTML = "";
-    Puck.write(`\x10(function() {
-      for (var n=0;n<36;n++) {
-        var f = require("Storage").open(".heart"+n.toString(36),"r");
-        var l = f.readLine();
-        if (l!==undefined)
-          Bluetooth.println(n+","+l.trim());
-      }
-    })()\n`, recordList => {
-      var recordLines = recordList.trim().split("\n");
-      var html = `<div class="container">
-    <div class="columns">\n`;
-      recordLines.forEach(l => {
-        var record = recordLineToObject(l, true /*has record number*/);
-        html += `
-          <div class="column col-12">
-            <div class="card-header">
-              <div class="card-title h5">Heart Rate Record ${record.number}</div>
-              <div class="card-subtitle text-gray">${(new Date(record.time*1000)).toString().substr(0,24)}</div>
-            </div>
-            <div class="card-body"></div>
-            <div class="card-footer">
-              <button class="btn btn-primary" recordNbr="${record.number}" task="download">Download</button>
-              <button class="btn btn-default" recordNbr="${record.number}" task="delete">Delete</button>
-            </div>
-          </div>
-        `;
-      });
-      if (recordLines.length == 0) {
-        html += `
-          <div class="column col-12">
-            <div class="card-header">
-              <div class="card-title h5">No record</div>
-              <div class="card-subtitle text-gray">No heart rate record found</div>
-            </div>
-          </div>
-          `;
-      }
+<html>
+  <head>
+    <link rel="stylesheet" href="../../css/spectre.min.css">
+  </head>
+  <body>
+    <div id="records"></div>
+
+    <script src="../../core/lib/interface.js"></script>
+    <script>
+var domRecords = document.getElementById("records");
+
+function saveRecord(record, name) {
+  // Here you save the raw binary data as a binary file (.bin)
+  Util.saveFile(name, record);  // Using Util.saveFile to save the raw data
+}
+
+function downloadRecord(recordNbr, callback) {
+  Util.showModal("Downloading heart rate record...");
+  Util.readStorageFile(`.heart${recordNbr.toString(36)}`, data => {
+    Util.hideModal();
+    // Now just pass the raw binary data to the callback
+    callback(data);  // Pass raw data without processing
+  });
+}
+
+function getRecordList() {
+  Util.showModal("Loading heart rate records...");
+  domRecords.innerHTML = "";
+  Puck.write(`\x10(function() {
+    for (var n=0;n<36;n++) {
+      var f = require("Storage").open(".heart"+n.toString(36),"r");
+      var l = f.readLine();
+      if (l!==undefined)
+        Bluetooth.println(n+","+l.trim());
+    }
+  })()\n`, recordList => {
+    var recordLines = recordList.trim().split("\n");
+    var html = `<div class="container">
+  <div class="columns">\n`;
+    recordLines.forEach(l => {
+      var record = recordLineToObject(l, true /*has record number*/);
       html += `
-      </div>
-    </div>`;
-      domRecords.innerHTML = html;
-      Util.hideModal();
-      var buttons = domRecords.querySelectorAll("button");
-      for (var i = 0; i < buttons.length; i++) {
-        buttons[i].addEventListener("click", event => {
-          var button = event.currentTarget;
-          var recordNbr = parseInt(button.getAttribute("recordNbr"));
-          var task = button.getAttribute("task");
-          if (task == "delete") {
-            Util.showModal("Deleting record...");
-            Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`, () => {
-              Util.hideModal();
-              getRecordList();
-            });
-          }
-          if (task == "download") {
-            // Download the raw binary data
-            downloadRecord(recordNbr, recordData => saveRecord(recordData, `HeartRateRecord${recordNbr}.bin`));
-          }
-        });
-      }
+        <div class="column col-12">
+          <div class="card-header">
+            <div class="card-title h5">Heart Rate Record ${record.number}</div>
+            <div class="card-subtitle text-gray">${(new Date(record.time*1000)).toString().substr(0,24)}</div>
+          </div>
+          <div class="card-body"></div>
+          <div class="card-footer">
+            <button class="btn btn-primary" recordNbr="${record.number}" task="download">Download</button>
+            <button class="btn btn-default" recordNbr="${record.number}" task="delete">Delete</button>
+          </div>
+        </div>
+      `;
     });
-  }
-  
-  function onInit() {
-    getRecordList();
-  }
-  </script>
-  
+    if (recordLines.length == 0) {
+      html += `
+        <div class="column col-12">
+          <div class="card-header">
+            <div class="card-title h5">No record</div>
+            <div class="card-subtitle text-gray">No heart rate record found</div>
+          </div>
+        </div>
+        `;
+    }
+    html += `
+    </div>
+  </div>`;
+    domRecords.innerHTML = html;
+    Util.hideModal();
+    var buttons = domRecords.querySelectorAll("button");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", event => {
+        var button = event.currentTarget;
+        var recordNbr = parseInt(button.getAttribute("recordNbr"));
+        var task = button.getAttribute("task");
+        if (task == "delete") {
+          Util.showModal("Deleting record...");
+          Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`, () => {
+            Util.hideModal();
+            getRecordList();
+          });
+        }
+        if (task == "download") {
+          // Download the raw binary data
+          downloadRecord(recordNbr, recordData => saveRecord(recordData, `HeartRateRecord${recordNbr}.bin`));
+        }
+      });
+    }
+  });
+}
+
+function onInit() {
+  getRecordList();
+}
+
+    </script>
+  </body>
+</html>

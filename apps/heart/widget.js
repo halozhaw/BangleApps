@@ -35,7 +35,7 @@ function onHRM(hrm) {
     var accelZ = Math.round(accel.z * 100);
 
     // Create a binary buffer to store data
-    var buffer = new ArrayBuffer(14);  // Total of 14 bytes
+    var buffer = new ArrayBuffer(15);  // Total of 14 bytes
     var view = new DataView(buffer);
 
     // Write the values to the buffer

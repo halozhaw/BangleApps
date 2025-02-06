@@ -16,17 +16,41 @@
     g.setColor(-1); // change color back to be nice to other apps
   }
 
-  function onHRM(hrm) {
-    hrmToggle = !hrmToggle;
-    // Get accelerometer data
-    var accel = Bangle.getAccel();  // Get the current accelerometer data
-    WIDGETS["heart"].draw();
-    if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw,
-                                accel.x.toFixed(2),
-                                accel.y.toFixed(2),
-                                accel.z.toFixed(2)].join(",")+"\n");
-  }
+function onHRM(hrm) {
+  hrmToggle = !hrmToggle;
+  WIDGETS["heart"].draw();
+  
+  // Get accelerometer data
+  var accel = Bangle.getAccel();  // Get current accelerometer data
+  
+  // If the recording file exists, write the heart rate and accelerometer data in binary format
+  if (recFile) {
+    // Convert values to appropriate binary format
+    var timestamp = Math.floor(getTime()).toString(16);  // Timestamp as integer
+    var bpm = Math.round(hrm.bpm);
+    var confidence = Math.round(hrm.confidence);
+    var raw = Math.round(hrm.raw);
+    var accelX = Math.round(accel.x * 100);  // Scale accelerometer data
+    var accelY = Math.round(accel.y * 100);
+    var accelZ = Math.round(accel.z * 100);
 
+    // Create a binary buffer to store data
+    var buffer = new ArrayBuffer(14);  // Total of 14 bytes
+    var view = new DataView(buffer);
+
+    // Write the values to the buffer
+    view.setInt32(0, timestamp, true);    // Timestamp (4 bytes)
+    view.setInt16(4, bpm, true);          // Heart rate (2 bytes)
+    view.setInt8(6, confidence);          // Confidence (1 byte)
+    view.setInt16(7, raw, true);          // Raw value (2 bytes)
+    view.setInt16(9, accelX, true);       // Accelerometer X (2 bytes)
+    view.setInt16(11, accelY, true);      // Accelerometer Y (2 bytes)
+    view.setInt16(13, accelZ, true);      // Accelerometer Z (2 bytes)
+
+    // Write the binary data to the file
+    recFile.write(buffer);
+  }
+}
   // Called by the heart app to reload settings and decide what's
   function reload() {
     settings = require("Storage").readJSON("heart.json",1)||{};

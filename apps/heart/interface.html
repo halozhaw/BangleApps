@@ -23,17 +23,56 @@ function recordLineToObject(l, hasRecordNbr) {
     bpm: parseFloat(t[n+1]),
     confidence: parseFloat(t[n+2]),
     raw: parseFloat(t[n+3]),
+    x: parseFloat(t[n+4]),
+    y: parseFloat(t[n+5]),
+    raw: parseFloat(t[n+6]),
   };
   if (hasRecordNbr)
     o.number = t[0];
   return o;
 }
 
+// Function to parse binary data into a human-readable object
+function parseBinaryData(binaryData) {
+  var record = [];
+  
+  var buffer = new ArrayBuffer(binaryData.length);  // Create an ArrayBuffer
+  var view = new DataView(buffer);
+  for (var i = 0; i < binaryData.length; i++) {
+    view.setUint8(i, binaryData.charCodeAt(i));  // Copy binary data to buffer
+  }
+
+  var numberOfRecords = Math.floor(binaryData.length / 14);  // Each record is 14 bytes
+  for (var i = 0; i < numberOfRecords; i++) {
+    var offset = i * 14;
+    var time = view.getInt32(offset, true);
+    var bpm = view.getInt16(offset + 4, true);
+    var confidence = view.getInt8(offset + 6);
+    var raw = view.getInt16(offset + 7, true);
+    var accelX = view.getInt16(offset + 9, true) / 100;
+    var accelY = view.getInt16(offset + 11, true) / 100;
+    var accelZ = view.getInt16(offset + 13, true) / 100;
+
+    record.push({
+      time: time,
+      bpm: bpm,
+      confidence: confidence,
+      raw: raw,
+      x: accelX,
+      y: accelY,
+      z: accelZ
+    });
+  }
+
+  return record;
+}
+
 function downloadRecord(recordNbr, callback) {
   Util.showModal("Downloading heart rate record...");
-  Util.readStorageFile(`.heart${recordNbr.toString(36)}`,data=>{
+  Util.readStorageFile(`.heart${recordNbr.toString(36)}`, data => {
     Util.hideModal();
-    var record = data.trim().split("\n").map(l=>recordLineToObject(l,false));
+    // Process binary data
+    var record = parseBinaryData(data);
     callback(record);
   });
 }

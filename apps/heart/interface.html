@@ -84,8 +84,11 @@ function getRecordList() {
     for (var n=0;n<36;n++) {
       var f = require("Storage").open(".heart"+n.toString(36),"r");
       var l = f.readLine();
-      if (l!==undefined)
-        Bluetooth.println(n+","+l.trim());
+      if (l !== undefined && l.trim() !== "") {
+        Bluetooth.println(n + "," + l.trim());
+      } else {
+        console.log("Skipping empty or undefined line for record", n);
+      }
     }
   })()\n`,recordList=>{
     var recordLines = recordList.trim().split("\n");

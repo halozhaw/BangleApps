@@ -16,10 +16,15 @@
     g.setColor(-1); // change color back to be nice to other apps
   }
 
-  function onHRM(hrm, accel) {
+  function onHRM(hrm) {
     hrmToggle = !hrmToggle;
+    // Get accelerometer data
+    var accel = Bangle.getAccel();  // Get the current accelerometer data
     WIDGETS["heart"].draw();
-    if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw, accel.x, accel.y, accel.x].join(",")+"\n");
+    if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw,
+                                accel.x.toFixed(2),
+                                accel.y.toFixed(2),
+                                accel.z.toFixed(2)].join(",")+"\n");
   }
 
   // Called by the heart app to reload settings and decide what's

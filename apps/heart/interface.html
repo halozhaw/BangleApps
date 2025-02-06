@@ -9,17 +9,71 @@
     <script>
 var domRecords = document.getElementById("records");
 
-function saveRecord(record, name) {
-  // Here you save the raw binary data as a binary file (.bin)
-  Util.saveFile(name, record);  // Using Util.saveFile to save the raw data
+function saveRecord(record,name) {
+  var csv = `${record.map(rec=>[rec.time, rec.bpm, rec.confidence, rec.raw, rec.x, rec.y, rec.z].join(",")).join("\n")}`;
+  Util.saveCSV(name, csv);
+}
+
+
+function recordLineToObject(l, hasRecordNbr) {
+  var t = l.trim().split(",");
+  var n = hasRecordNbr?1:0;
+  var o = {
+    time: parseInt(t[n+0]),
+    bpm: parseFloat(t[n+1]),
+    confidence: parseFloat(t[n+2]),
+    raw: parseFloat(t[n+3]),
+    x: parseFloat(t[n+4]),
+    y: parseFloat(t[n+5]),
+    raw: parseFloat(t[n+6]),
+  };
+  if (hasRecordNbr)
+    o.number = t[0];
+  return o;
+}
+
+// Function to parse binary data into a human-readable object
+function parseBinaryData(binaryData) {
+  var record = [];
+  
+  var buffer = new ArrayBuffer(binaryData.length);  // Create an ArrayBuffer
+  var view = new DataView(buffer);
+  for (var i = 0; i < binaryData.length; i++) {
+    view.setUint8(i, binaryData.charCodeAt(i));  // Copy binary data to buffer
+  }
+
+  var numberOfRecords = Math.floor(binaryData.length / 14);  // Each record is 14 bytes
+  for (var i = 0; i < numberOfRecords; i++) {
+    var offset = i * 14;
+    var time = view.getInt32(offset, true);
+    var bpm = view.getInt16(offset + 4, true);
+    var confidence = view.getInt8(offset + 6);
+    var raw = view.getInt16(offset + 7, true);
+    var accelX = view.getInt16(offset + 9, true) / 100;
+    var accelY = view.getInt16(offset + 11, true) / 100;
+    var accelZ = view.getInt16(offset + 13, true) / 100;
+
+    record.push({
+      time: time,
+      bpm: bpm,
+      confidence: confidence,
+      raw: raw,
+      x: accelX,
+      y: accelY,
+      z: accelZ
+    });
+  }
+
+  return record;
 }
 
 function downloadRecord(recordNbr, callback) {
   Util.showModal("Downloading heart rate record...");
   Util.readStorageFile(`.heart${recordNbr.toString(36)}`, data => {
     Util.hideModal();
-    // Now just pass the raw binary data to the callback
-    callback(data);  // Pass raw data without processing
+    // Process binary data
+    var record = parseBinaryData(data);
+    callback(record);
   });
 }
 
@@ -30,10 +84,13 @@ function getRecordList() {
     for (var n=0;n<36;n++) {
       var f = require("Storage").open(".heart"+n.toString(36),"r");
       var l = f.readLine();
-      if (l!==undefined)
-        Bluetooth.println(n+","+l.trim());
+      if (l !== undefined && l.trim() !== "") {
+        Bluetooth.println(n + "," + l.trim());
+      } else {
+        console.log("Skipping empty or undefined line for record", n);
+      }
     }
-  })()\n`, recordList => {
+  })()\n`,recordList=>{
     var recordLines = recordList.trim().split("\n");
     var html = `<div class="container">
   <div class="columns">\n`;
@@ -53,7 +110,7 @@ function getRecordList() {
         </div>
       `;
     });
-    if (recordLines.length == 0) {
+    if (recordLines.length==0) {
       html += `
         <div class="column col-12">
           <div class="card-header">
@@ -69,25 +126,24 @@ function getRecordList() {
     domRecords.innerHTML = html;
     Util.hideModal();
     var buttons = domRecords.querySelectorAll("button");
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].addEventListener("click", event => {
+    for (var i=0;i<buttons.length;i++) {
+      buttons[i].addEventListener("click",event => {
         var button = event.currentTarget;
         var recordNbr = parseInt(button.getAttribute("recordNbr"));
         var task = button.getAttribute("task");
-        if (task == "delete") {
+        if (task=="delete") {
           Util.showModal("Deleting record...");
-          Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`, () => {
+          Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`,()=>{
             Util.hideModal();
             getRecordList();
           });
         }
-        if (task == "download") {
-          // Download the raw binary data
-          downloadRecord(recordNbr, recordData => saveRecord(recordData, `HeartRateRecord${recordNbr}.bin`));
+        if (task=="download") {
+          downloadRecord(recordNbr, record => saveRecord(record, `HeartRateRecord${recordNbr}`));
         }
       });
     }
-  });
+  })
 }
 
 function onInit() {

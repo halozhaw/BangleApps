@@ -64,7 +64,7 @@ function onHRM(hrm) {
       Bangle.setHRMPower(1,"heart");
       var n = settings.fileNbr.toString(36);
       recFile = require("Storage").open(".heart"+n,"a");
-      console.log("Recording to file: " + currentFileName);
+      console.log("Recording to file: " + n);
     } else {
       WIDGETS["heart"].width = 0;
       Bangle.setHRMPower(0,"heart");

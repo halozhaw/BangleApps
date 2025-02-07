@@ -21,12 +21,12 @@ function onHRM(hrm) {
   WIDGETS["heart"].draw();
   
   // Get accelerometer data
-  var accel = Bangle.getAccel();  // Get current accelerometer data
+  var accel = Bangle.getAccel();  // Get the current accelerometer data
   
   // If the recording file exists, write the heart rate and accelerometer data in binary format
   if (recFile) {
     // Convert values to appropriate binary format
-    var timestamp = Math.floor(getTime()).toString(16);  // Timestamp as integer
+    var timestamp = Math.floor(getTime());  // Timestamp as integer
     var bpm = Math.round(hrm.bpm);
     var confidence = Math.round(hrm.confidence);
     var raw = Math.round(hrm.raw);
@@ -34,8 +34,8 @@ function onHRM(hrm) {
     var accelY = Math.round(accel.y * 100);
     var accelZ = Math.round(accel.z * 100);
 
-    // Create a binary buffer to store data
-    var buffer = new ArrayBuffer(15);  // Total of 14 bytes
+    // Create a binary buffer to store data (total of 14 bytes)
+    var buffer = new ArrayBuffer(14);
     var view = new DataView(buffer);
 
     // Write the values to the buffer
@@ -48,7 +48,7 @@ function onHRM(hrm) {
     view.setInt16(13, accelZ, true);      // Accelerometer Z (2 bytes)
 
     // Write the binary data to the file
-    recFile.write(buffer);
+    recFile.write(new Uint8Array(buffer)); // Write as binary data
   }
 }
   // Called by the heart app to reload settings and decide what's
@@ -64,6 +64,7 @@ function onHRM(hrm) {
       Bangle.setHRMPower(1,"heart");
       var n = settings.fileNbr.toString(36);
       recFile = require("Storage").open(".heart"+n,"a");
+      console.log("Recording to file: " + currentFileName);
     } else {
       WIDGETS["heart"].width = 0;
       Bangle.setHRMPower(0,"heart");

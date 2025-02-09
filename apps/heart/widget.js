@@ -16,36 +16,54 @@
     g.setColor(-1); // change color back to be nice to other apps
   }
 
-  function onHRM(hrm) {
+var lastHRMTime = 0;
+var sampleInterval = 500; // Set the sampling interval in milliseconds (e.g., 500ms = 2Hz)
+
+function onHRM(hrm) {
+  var currentTime = getTime();
+
+  // Only process if the interval has passed
+  if (currentTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
     // Get accelerometer data
     var accel = Bangle.getAccel();  // Get the current accelerometer data
+    // Draw the heart widget
     WIDGETS["heart"].draw();
-    if (recFile) recFile.write([getTime().toFixed(0),hrm.bpm,hrm.confidence,hrm.raw,
-                                accel.x.toFixed(2),
-                                accel.y.toFixed(2),
-                                accel.z.toFixed(2)].join(",")+"\n");
-  }
-
-  // Called by the heart app to reload settings and decide what's
-  function reload() {
-    settings = require("Storage").readJSON("heart.json",1)||{};
-    settings.fileNbr |= 0;
-    // Bangle.removeListener('HRM',onHRM);
-    Bangle.removeListener('HRM-raw',onHRM);
-    if (settings.isRecording) {
-      WIDGETS["heart"].width = 8;
-      // Bangle.on('HRM',onHRM);
-      Bangle.on('HRM-raw',onHRM);
-      Bangle.setHRMPower(1,"heart");
-      var n = settings.fileNbr.toString(36);
-      recFile = require("Storage").open(".heart"+n,"a");
-    } else {
-      WIDGETS["heart"].width = 0;
-      Bangle.setHRMPower(0,"heart");
-      recFile = undefined;
+    // Write to the file
+    if (recFile) {
+      recFile.write([getTime().toFixed(0), hrm.bpm, hrm.confidence, hrm.raw,
+                     accel.x.toFixed(2), accel.y.toFixed(2), accel.z.toFixed(2)].join(",") + "\n");
     }
+    
+    // Update the last HRM time to the current time
+    lastHRMTime = currentTime;
   }
+}
+
+// Called by the heart app to reload settings and decide what's
+function reload() {
+  settings = require("Storage").readJSON("heart.json", 1) || {};
+  settings.fileNbr |= 0;
+  
+  // Remove the previous listener
+  Bangle.removeListener('HRM-raw', onHRM);
+
+  // Check if recording is enabled
+  if (settings.isRecording) {
+    WIDGETS["heart"].width = 24;
+    // Reattach the HRM listener with the new throttle mechanism
+    Bangle.on('HRM-raw', onHRM);
+    Bangle.setHRMPower(1, "heart");
+    
+    // Open the recording file
+    var n = settings.fileNbr.toString(36);
+    recFile = require("Storage").open(".heart" + n, "a");
+  } else {
+    WIDGETS["heart"].width = 0;
+    Bangle.setHRMPower(0, "heart");
+    recFile = undefined;
+  }
+}
   // add the widget
   WIDGETS["heart"]={area:"tl",width:24,draw:draw,reload:function() {
     reload();

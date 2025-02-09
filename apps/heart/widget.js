@@ -17,7 +17,7 @@
   }
 
 var lastHRMTime = 0;
-var sampleInterval = 500; // Set the sampling interval in milliseconds (e.g., 500ms = 2Hz)
+var sampleInterval = 800; // Set the sampling interval in milliseconds (e.g., 500ms = 2Hz)
 
 function onHRM(hrm) {
   var currentTime = getTime();
@@ -32,7 +32,7 @@ function onHRM(hrm) {
     // Write to the file
     if (recFile) {
       recFile.write([getTime().toFixed(0), hrm.bpm, hrm.confidence, hrm.raw,
-                     accel.x.toFixed(2), accel.y.toFixed(2), accel.z.toFixed(2)].join(",") + "\n");
+                     accel.x.toFixed(4), accel.y.toFixed(4), accel.z.toFixed(4)].join(",") + "\n");
     }
     
     // Update the last HRM time to the current time

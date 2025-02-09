@@ -34,7 +34,7 @@
     // Bangle.removeListener('HRM',onHRM);
     Bangle.removeListener('HRM-raw',onHRM);
     if (settings.isRecording) {
-      WIDGETS["heart"].width = 24;
+      WIDGETS["heart"].width = 8;
       // Bangle.on('HRM',onHRM);
       Bangle.on('HRM-raw',onHRM);
       Bangle.setHRMPower(1,"heart");

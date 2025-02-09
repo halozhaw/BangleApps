@@ -95,6 +95,23 @@ function getRecordList() {
         if (task=="delete") {
           Util.showModal("Deleting record...");
           Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`,()=>{
+                // Get the current year and month
+                var date = new Date();
+                var year = date.getFullYear();  // Current year (YYYY)
+                var month = date.getMonth() + 1;  // Current month (1-12)
+
+                // Construct the health filename with the current year and month
+                var healthFileName = `health-${year}-${month}.raw`;
+
+                // Delete the health-YYYY-M.raw file
+                try {
+                  require("Storage").open(healthFileName, "r");  // Try to open the file
+                  Util.eraseStorageFile(healthFileName, () => {
+                    console.log(`Deleted file: ${healthFileName}`);
+                  });
+                } catch (e) {
+                  console.log(`No file found: ${healthFileName}`);  // If the file doesn't exist
+    }
             Util.hideModal();
             getRecordList();
           });

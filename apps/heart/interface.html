@@ -51,10 +51,11 @@ function getRecordList() {
       if (l!==undefined)
         Bluetooth.println(n+","+l.trim());
     }
-  })()\n`,recordList=>{
+  })()\n`, recordList => {
     var recordLines = recordList.trim().split("\n");
     var html = `<div class="container">
   <div class="columns">\n`;
+
     recordLines.forEach(l => {
       var record = recordLineToObject(l, true /*has record number*/);
       html += `
@@ -71,7 +72,8 @@ function getRecordList() {
         </div>
       `;
     });
-    if (recordLines.length==0) {
+
+    if (recordLines.length == 0) {
       html += `
         <div class="column col-12">
           <div class="card-header">
@@ -81,47 +83,47 @@ function getRecordList() {
         </div>
         `;
     }
+
     html += `
     </div>
   </div>`;
+
     domRecords.innerHTML = html;
     Util.hideModal();
+
     var buttons = domRecords.querySelectorAll("button");
-    for (var i=0;i<buttons.length;i++) {
-      buttons[i].addEventListener("click",event => {
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", event => {
         var button = event.currentTarget;
         var recordNbr = parseInt(button.getAttribute("recordNbr"));
         var task = button.getAttribute("task");
-        if (task=="delete") {
+
+        if (task == "delete") {
           Util.showModal("Deleting record...");
-          Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`,()=>{
-                // Get the current year and month
-                var date = new Date();
-                var year = date.getFullYear();  // Current year (YYYY)
-                var month = date.getMonth() + 1;  // Current month (1-12)
+          Util.eraseStorageFile(`.heart${recordNbr.toString(36)}`, () => {
+            // Get the current year and month
+            var date = new Date();
+            var year = date.getFullYear();  // Current year (YYYY)
+            var month = date.getMonth() + 1;  // Current month (1-12)
 
-                // Construct the health filename with the current year and month
-                var healthFileName = `health-${year}-${month}.raw`;
+            // Construct the health filename with the current year and month
+            var healthFileName = `health-${year}-${month}.raw`;
 
-                // Delete the health-YYYY-M.raw file
-                try {
-                  require("Storage").open(healthFileName, "r");  // Try to open the file
-                  Util.eraseStorageFile(healthFileName, () => {
-                    console.log(`Deleted file: ${healthFileName}`);
-                  });
-                } catch (e) {
-                  console.log(`No file found: ${healthFileName}`);  // If the file doesn't exist
-    }
-            Util.hideModal();
-            getRecordList();
+            // Delete the health-YYYY-M.raw file
+            Util.eraseStorageFile(healthFileName, () => {
+              console.log(`Deleted file: ${healthFileName}`);
+            });
           });
+          Util.hideModal();
+          getRecordList();
         }
-        if (task=="download") {
+
+        if (task == "download") {
           downloadRecord(recordNbr, record => saveRecord(record, `HeartRateRecord${recordNbr}`));
         }
       });
     }
-  })
+  });
 }
 
 function onInit() {

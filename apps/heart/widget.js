@@ -17,7 +17,7 @@
   }
 
 var lastHRMTime = 0;
-var sampleInterval = 40; // Set the sampling interval in milliseconds (e.g., 500ms = 2Hz)
+var sampleInterval = 800; // Set the sampling interval in milliseconds (e.g., 500ms = 2Hz)
 
 function onHRM(hrm) {
   var currentTime = getTime();

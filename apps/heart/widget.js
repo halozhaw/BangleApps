@@ -5,8 +5,9 @@
   var lastHRMTime = 0;
   var sampleInterval = 40; // 25Hz (40ms interval)
 
-  // Huffman Encoding Table (Optimized for HR range 50-180 with 60-100 as lowest size)
-  var huffmanTable = {
+  // Huffman Encoding Tables
+  // Optimized for HR range 50-180 with 60-100 as lowest size
+  var huffmanHRTable = {
     60: "000", 61: "001", 62: "010", 63: "011", 64: "100",
     65: "101", 66: "110", 67: "1110", 68: "1111", 69: "10000",
     70: "10001", 71: "10010", 72: "10011", 73: "10100", 74: "10101",
@@ -36,19 +37,19 @@
     180: "1111001"
   };
 
-  function encodeHR(hr) {
-    return huffmanTable[hr] || "1111111"; // Fallback encoding for out-of-range values
+  function encodeHuffman(value, table) {
+    return table[value] || "1111111"; // Fallback encoding for out-of-range values
   }
 
   function onHRM(hrm) {
     var currentTime = getTime();
-    console.log("HRM Data:", hrm); // Debugging output
     if (currentTime - lastHRMTime >= sampleInterval / 1000) {
       hrmToggle = !hrmToggle;
       WIDGETS["heart"].draw();
       if (recFile) {
-        var encodedHR = encodeHR(hrm.bpm);
-        recFile.write([getTime().toFixed(0), encodedHR, hrm.confidence, hrm.raw].join(",") + "\n");
+        var encodedHR = encodeHuffman(hrm.bpm, huffmanHRTable);
+        var encodedRaw = encodeHuffman(hrm.raw, huffmanHRTable);
+        recFile.write([getTime().toFixed(0), encodedHR, hrm.confidence, encodedRaw].join(",") + "\n");
       }
       lastHRMTime = currentTime;
     }

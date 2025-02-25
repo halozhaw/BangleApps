@@ -49,12 +49,13 @@ function onHRM(hrm) {
 
 function onHRMRaw(hrm) {
   var currentTime = getTime().toFixed(0);
+  var samplingTime = getTime();
   if (firstTimestamp === null) {
     firstTimestamp = currentTime;
   }
   var deltaTime = (currentTime - lastHRMTime).toFixed(3);
 
-  if (currentTime - lastHRMTime >= sampleInterval / 1000) {
+  if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
     if (recFile && lastHRM) {
@@ -64,7 +65,7 @@ function onHRMRaw(hrm) {
 
       recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw].join(",") + "\n");
     }
-    lastHRMTime = currentTime;
+    lastHRMTime = samplingTime;
   }
 }
 function draw() {

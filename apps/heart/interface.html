@@ -20,9 +20,9 @@ function recordLineToObject(l, hasRecordNbr) {
   var n = hasRecordNbr?1:0;
   var o = {
     time: parseInt(t[n+0]),
-    bpm: parseFloat(t[n+1]),
+    bpm: t[n+1],
     confidence: parseFloat(t[n+2]),
-    bpmraw: parseFloat(t[n+3]),
+    bpmraw: t[n+3],
     raw: parseFloat(t[n+4]),
   };
   if (hasRecordNbr)

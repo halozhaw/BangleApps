@@ -4,6 +4,7 @@
   var recFile;
   var lastHRMTime = 0;
   var sampleInterval = 40; // 25Hz (40ms interval)
+  var lastHRMRaw = null;
 
   // Huffman Encoding Tables
   // Optimized for HR range 50-180 with 60-100 as lowest size
@@ -42,14 +43,19 @@
   }
 
   function onHRM(hrm) {
+    lastHRM = hrm;
+  }
+
+  function onHRMRaw(hrm) {
     var currentTime = getTime();
     if (currentTime - lastHRMTime >= sampleInterval / 1000) {
       hrmToggle = !hrmToggle;
       WIDGETS["heart"].draw();
-      if (recFile) {
-        var encodedHR = encodeHuffman(hrm.bpm, huffmanHRTable);
-        var encodedRaw = encodeHuffman(hrm.raw, huffmanHRTable);
-        recFile.write([getTime().toFixed(0), encodedHR, hrm.confidence, encodedRaw].join(",") + "\n");
+      if (recFile && lastHRM) {
+        var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
+        var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
+        recFile.write([getTime().toFixed(0), encodedHR, lastHRM.confidence, encodedRaw, 
+                       lastHRM.raw].join(",") + "\n");
       }
       lastHRMTime = currentTime;
     }
@@ -59,11 +65,13 @@
     settings = require("Storage").readJSON("heart.json", 1) || {};
     settings.fileNbr |= 0;
     Bangle.removeListener('HRM', onHRM);
+    Bangle.removeListener('HRM-raw', onHRMRaw);
     Bangle.setHRMPower(1, "heart"); // Ensure HRM is powered on before attaching listener
 
     if (settings.isRecording) {
       WIDGETS["heart"].width = 24;
       Bangle.on('HRM', onHRM);
+      Bangle.on('HRM-raw', onHRMRaw);
       var n = settings.fileNbr.toString(36);
       recFile = require("Storage").open(".heart" + n, "a");
       Bangle.drawWidgets();
@@ -74,6 +82,13 @@
     }
   }
 
-  WIDGETS["heart"] = { area: "tl", width: 24, draw: function() {}, reload: reload };
+
+  // add the widget
+  WIDGETS["heart"]={area:"tl",width:24,draw:draw,reload:function() {
+    reload();
+    Bangle.drawWidgets(); // relayout all widgets
+  }};
+  // load settings, set correct widget width
   reload();
-})();
+})()
+

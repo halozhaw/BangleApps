@@ -48,22 +48,21 @@ function onHRM(hrm) {
 }
 
 function onHRMRaw(hrm) {
-  var currentTime = getTime();
+  var currentTime = getTime().toFixed(0);
   if (firstTimestamp === null) {
-    firstTimestamp = currentTime; // Store the first timestamp
+    firstTimestamp = currentTime;
   }
-  var deltaTime = currentTime - lastHRMTime;
-  
-  if (deltaTime >= sampleInterval / 1000) {
+  var deltaTime = (currentTime - lastHRMTime).toFixed(3);
+
+  if (currentTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
     if (recFile && lastHRM) {
       var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
-      var timestampToRecord = (lastHRMTime === 0) ? firstTimestamp.toFixed(0) : deltaTime.toFixed(3);
-      
-      recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, 
-                     hrm.raw].join(",") + "\n");
+      var timestampToRecord = (lastHRMTime === 0) ? firstTimestamp : deltaTime;
+
+      recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw].join(",") + "\n");
     }
     lastHRMTime = currentTime;
   }

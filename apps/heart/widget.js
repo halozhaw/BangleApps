@@ -55,7 +55,7 @@ function onHRMRaw(hrm) {
       var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
       recFile.write([getTime().toFixed(0), encodedHR, lastHRM.confidence, encodedRaw, 
-                     lastHRM.raw].join(",") + "\n");
+                     hrm.raw].join(",") + "\n");
     }
     lastHRMTime = currentTime;
   }

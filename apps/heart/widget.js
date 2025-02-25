@@ -48,13 +48,20 @@ function onHRM(hrm) {
 
 function onHRMRaw(hrm) {
   var currentTime = getTime();
-  if (currentTime - lastHRMTime >= sampleInterval / 1000) {
+  if (firstTimestamp === null) {
+    firstTimestamp = currentTime; // Store the first timestamp
+  }
+  var deltaTime = currentTime - lastHRMTime;
+  
+  if (deltaTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
     if (recFile && lastHRM) {
       var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
-      recFile.write([getTime().toFixed(0), encodedHR, lastHRM.confidence, encodedRaw, 
+      var timestampToRecord = (lastHRMTime === 0) ? firstTimestamp.toFixed(0) : deltaTime.toFixed(3);
+      
+      recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, 
                      hrm.raw].join(",") + "\n");
     }
     lastHRMTime = currentTime;

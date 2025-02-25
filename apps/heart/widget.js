@@ -6,6 +6,7 @@ var lastHRMTime = 0;
 var sampleInterval = 40; // 25Hz (40ms interval)
 var lastHRM = null;
 var firstTimestamp = null;
+var lastTimedelta = 0;
 
 // Huffman Encoding Tables
 // Optimized for HR range 50-180 with 60-100 as lowest size
@@ -53,7 +54,7 @@ function onHRMRaw(hrm) {
   if (firstTimestamp === null) {
     firstTimestamp = currentTime;
   }
-  var deltaTime = (currentTime - lastHRMTime).toFixed(3);
+  var deltaTime = (currentTime - lastTimedelta).toFixed(3);
 
   if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
@@ -61,11 +62,12 @@ function onHRMRaw(hrm) {
     if (recFile && lastHRM) {
       var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
-      var timestampToRecord = (lastHRMTime === 0) ? firstTimestamp : deltaTime;
+      var timestampToRecord = (lastTimedelta === 0) ? firstTimestamp : deltaTime;
 
       recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw].join(",") + "\n");
     }
     lastHRMTime = samplingTime;
+    lastTimedelta = currentTime;
   }
 }
 function draw() {

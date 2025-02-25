@@ -60,7 +60,17 @@ function onHRMRaw(hrm) {
     lastHRMTime = currentTime;
   }
 }
-
+function draw() {
+  if (!settings.isRecording) return;
+  g.reset();
+  g.setFontAlign(0,0);
+  g.clearRect(this.x,this.y,this.x+23,this.y+23);
+  g.setColor(hrmToggle ? "#ff0000" : "#ff8000");
+  g.fillCircle(this.x+6,this.y+6,4); // draw heart left circle
+  g.fillCircle(this.x+16,this.y+6,4); // draw heart right circle
+  g.fillPoly([this.x+2,this.y+8,this.x+20,this.y+8,this.x+11,this.y+18]); // draw heart bottom triangle
+  g.setColor(-1); // Reset color
+}
 function reload() {
   settings = require("Storage").readJSON("heart.json", 1) || {};
   settings.fileNbr |= 0;

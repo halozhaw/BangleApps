@@ -54,7 +54,7 @@ function onHRMRaw(hrm) {
   if (firstTimestamp === null) {
     firstTimestamp = currentTime;
   }
-  var deltaTime = (currentTime - lastTimedelta).toFixed(1);
+  var deltaTime = (currentTime - lastTimedelta);
 
   if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
@@ -65,6 +65,7 @@ function onHRMRaw(hrm) {
       var timestampToRecord = (lastTimedelta === 0) ? firstTimestamp : deltaTime;
 
       recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw].join(",") + "\n");
+      console.log([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw]);
     }
     lastHRMTime = samplingTime;
     lastTimedelta = currentTime;

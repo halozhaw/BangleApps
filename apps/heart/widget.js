@@ -49,12 +49,12 @@ function onHRM(hrm) {
 }
 
 function onHRMRaw(hrm) {
-  var currentTime = getTime().toFixed(0);
+  var currentTime = Date.now()
   var samplingTime = getTime();
   if (firstTimestamp === null) {
     firstTimestamp = currentTime;
   }
-  var deltaTime = (currentTime - lastTimedelta).toFixed(3);
+  var deltaTime = (currentTime - lastTimedelta).toFixed(1);
 
   if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;

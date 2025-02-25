@@ -4,7 +4,7 @@ var hrmToggle = true;
 var recFile;
 var lastHRMTime = 0;
 var sampleInterval = 40; // 25Hz (40ms interval)
-var lastHRMRaw = null;
+var lastHRM = null;
 
 // Huffman Encoding Tables
 // Optimized for HR range 50-180 with 60-100 as lowest size

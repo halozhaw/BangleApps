@@ -51,15 +51,6 @@ function onHRM(hrm) {
 function onHRMRaw(hrm) {
   var currentTime = Date.now(); // Get current time in milliseconds
   var samplingTime = getTime(); // Internal sampling tracking
-  if (!recFile) {
-    console.log("Waiting for recFile to initialize...");
-    return;
-  }
-  // Set first timestamp on the first HRM data point
-  if (firstTimestamp === null) {
-    firstTimestamp = currentTime;
-    lastTimedelta = firstTimestamp;
-  }
 
   // Calculate delta time in seconds with millisecond precision
   var deltaTime = (currentTime - firstTimestamp) / 1000; // Convert ms → seconds
@@ -73,6 +64,11 @@ function onHRMRaw(hrm) {
     WIDGETS["heart"].draw();
 
     if (recFile && lastHRM) {
+        // Set first timestamp on the first HRM data point
+      if (firstTimestamp === null) {
+        firstTimestamp = currentTime;
+        lastTimedelta = firstTimestamp;
+      }
       var timestampToRecord = (lastTimedelta === firstTimestamp) ? firstTimestamp : deltaTime;
 
       console.log("Recording Timestamp:", timestampToRecord.toFixed(2));

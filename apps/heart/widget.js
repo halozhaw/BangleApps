@@ -54,11 +54,7 @@ function onHRMRaw(hrm) {
   var samplingTime = getTime(); // Internal sampling tracking
 
   // Calculate delta time in seconds with millisecond precision
-  var deltaTime = lastRecordedTime ? (currentTime - lastRecordedTime) / 1000 : 0; // Convert ms → seconds
-
-  console.log("First Timestamp:", firstTimestamp);
-  console.log("Current Time:", currentTime);
-  console.log("Delta Time:", deltaTime);
+  var deltaTime = lastRecordedTime ? (currentTime - lastRecordedTime) : 0; // Convert ms → seconds
 
   if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
@@ -74,14 +70,10 @@ function onHRMRaw(hrm) {
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
       var timestampToRecord = (lastRecordedTime === firstTimestamp) ? currentTime : deltaTime;
 
-      console.log("Recording Timestamp:", timestampToRecord.toFixed(2));
-
       recFile.write([timestampToRecord.toFixed(2), encodedHR, lastHRM.confidence, 
         encodedRaw, hrm.raw].join(",") + "\n");
-      console.log([timestampToRecord.toFixed(2), encodedHR, lastHRM.confidence, encodedRaw, hrm.raw]);
       lastRecordedTime = currentTime;
     }
-
     lastHRMTime = samplingTime;
   }
 }

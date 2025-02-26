@@ -5,7 +5,7 @@ var recFile;
 var lastHRMTime = 0;
 var sampleInterval = 40; // 25Hz (40ms interval)
 var lastHRM = null;
-var firstTimestamp = null;
+var firstTimestamp = null; // Will be set at first HRM recording
 var lastTimedelta = 0;
 
 // Huffman Encoding Tables
@@ -49,12 +49,18 @@ function onHRM(hrm) {
 }
 
 function onHRMRaw(hrm) {
-  var currentTime = Date.now()
-  var samplingTime = getTime();
+  var currentTime = Date.now(); // Get current time in milliseconds
+  var samplingTime = getTime(); // Internal sampling tracking
+
+  // Set first timestamp on the first HRM data point
   if (firstTimestamp === null) {
     firstTimestamp = currentTime;
+    lastTimedelta = firstTimestamp;
   }
-  var deltaTime = (currentTime - lastTimedelta);
+
+  // Calculate delta time in seconds with millisecond precision
+  var deltaTime = (currentTime - firstTimestamp) / 1000; // Convert ms → seconds
+
   console.log("First Timestamp:", firstTimestamp);
   console.log("Current Time:", currentTime);
   console.log("Delta Time:", deltaTime);
@@ -62,20 +68,22 @@ function onHRMRaw(hrm) {
   if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
+
     if (recFile && lastHRM) {
-      var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
-      var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
-      var timestampToRecord = (lastTimedelta === 0) ? firstTimestamp : deltaTime;
-      
-      console.log("Recording Timestamp:", timestampToRecord);  // Debugging output
-      
-      recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw].join(",") + "\n");
-      console.log([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw]);
+      var timestampToRecord = (lastTimedelta === firstTimestamp) ? firstTimestamp : deltaTime;
+
+      console.log("Recording Timestamp:", timestampToRecord.toFixed(2));
+
+      recFile.write([timestampToRecord.toFixed(2), lastHRM.bpm, lastHRM.confidence, 
+        hrm.bpm, hrm.raw].join(",") + "\n");
+      console.log([timestampToRecord.toFixed(2), lastHRM.bpm, lastHRM.confidence, hrm.bpm, hrm.raw]);
     }
+
     lastHRMTime = samplingTime;
     lastTimedelta = currentTime;
   }
 }
+  
 function draw() {
   if (!settings.isRecording) return;
   g.reset();

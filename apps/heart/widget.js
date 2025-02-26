@@ -70,13 +70,15 @@ function onHRMRaw(hrm) {
         firstTimestamp = currentTime;
         lastRecordedTime = firstTimestamp; // Initialize last recorded time
       }
-      var timestampToRecord = (lastRecordedTime === firstTimestamp) ? firstTimestamp : deltaTime;
+      var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
+      var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
+      var timestampToRecord = (lastRecordedTime === firstTimestamp) ? currentTime : deltaTime;
 
       console.log("Recording Timestamp:", timestampToRecord.toFixed(2));
 
-      recFile.write([timestampToRecord.toFixed(2), lastHRM.bpm, lastHRM.confidence, 
-        hrm.bpm, hrm.raw].join(",") + "\n");
-      console.log([timestampToRecord.toFixed(2), lastHRM.bpm, lastHRM.confidence, hrm.bpm, hrm.raw]);
+      recFile.write([timestampToRecord.toFixed(2), encodedHR, lastHRM.confidence, 
+        encodedRaw, hrm.raw].join(",") + "\n");
+      console.log([timestampToRecord.toFixed(2), encodedHR, lastHRM.confidence, encodedRaw, hrm.raw]);
       lastRecordedTime = currentTime;
     }
 

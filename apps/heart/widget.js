@@ -51,7 +51,10 @@ function onHRM(hrm) {
 function onHRMRaw(hrm) {
   var currentTime = Date.now(); // Get current time in milliseconds
   var samplingTime = getTime(); // Internal sampling tracking
-
+  if (!recFile) {
+    console.log("Waiting for recFile to initialize...");
+    return;
+  }
   // Set first timestamp on the first HRM data point
   if (firstTimestamp === null) {
     firstTimestamp = currentTime;

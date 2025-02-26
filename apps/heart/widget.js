@@ -55,6 +55,9 @@ function onHRMRaw(hrm) {
     firstTimestamp = currentTime;
   }
   var deltaTime = (currentTime - lastTimedelta);
+  console.log("First Timestamp:", firstTimestamp);
+  console.log("Current Time:", currentTime);
+  console.log("Delta Time:", deltaTime);
 
   if (samplingTime - lastHRMTime >= sampleInterval / 1000) {
     hrmToggle = !hrmToggle;
@@ -63,7 +66,9 @@ function onHRMRaw(hrm) {
       var encodedHR = encodeHuffman(lastHRM.bpm, huffmanHRTable);
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
       var timestampToRecord = (lastTimedelta === 0) ? firstTimestamp : deltaTime;
-
+      
+      console.log("Recording Timestamp:", timestampToRecord);  // Debugging output
+      
       recFile.write([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw].join(",") + "\n");
       console.log([timestampToRecord, encodedHR, lastHRM.confidence, encodedRaw, hrm.raw]);
     }

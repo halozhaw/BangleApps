@@ -7,7 +7,8 @@ var sampleInterval = 40; // 25Hz (40ms interval)
 var lastHRM = null;
 var firstTimestamp = null; // Will be set at first HRM recording
 var lastTimedelta = 0;
-
+var lastRecordedTime = null;
+  
 // Huffman Encoding Tables
 // Optimized for HR range 50-180 with 60-100 as lowest size
 var huffmanHRTable = {
@@ -53,7 +54,7 @@ function onHRMRaw(hrm) {
   var samplingTime = getTime(); // Internal sampling tracking
 
   // Calculate delta time in seconds with millisecond precision
-  var deltaTime = (currentTime - firstTimestamp) / 1000; // Convert ms → seconds
+  var deltaTime = lastRecordedTime ? (currentTime - lastRecordedTime) / 1000 : 0; // Convert ms → seconds
 
   console.log("First Timestamp:", firstTimestamp);
   console.log("Current Time:", currentTime);
@@ -67,19 +68,19 @@ function onHRMRaw(hrm) {
         // Set first timestamp on the first HRM data point
       if (firstTimestamp === null) {
         firstTimestamp = currentTime;
-        lastTimedelta = firstTimestamp;
+        lastRecordedTime = firstTimestamp; // Initialize last recorded time
       }
-      var timestampToRecord = (lastTimedelta === firstTimestamp) ? firstTimestamp : deltaTime;
+      var timestampToRecord = (lastRecordedTime === firstTimestamp) ? firstTimestamp : deltaTime;
 
       console.log("Recording Timestamp:", timestampToRecord.toFixed(2));
 
       recFile.write([timestampToRecord.toFixed(2), lastHRM.bpm, lastHRM.confidence, 
         hrm.bpm, hrm.raw].join(",") + "\n");
       console.log([timestampToRecord.toFixed(2), lastHRM.bpm, lastHRM.confidence, hrm.bpm, hrm.raw]);
+      lastRecordedTime = currentTime;
     }
 
     lastHRMTime = samplingTime;
-    lastTimedelta = currentTime;
   }
 }
   

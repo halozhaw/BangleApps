@@ -3,7 +3,7 @@ var settings = {};
 var hrmToggle = true;
 var recFile;
 var lastHRMTime = 0;
-var sampleInterval = 40; // 25Hz (40ms interval)
+var sampleInterval = 100; // 10Hz (100ms interval)
 var lastHRM = null;
 var firstTimestamp = null; // Will be set at first HRM recording
 var lastTimedelta = 0;

@@ -70,8 +70,8 @@ function onHRMRaw(hrm) {
       var encodedRaw = encodeHuffman(hrm.bpm, huffmanHRTable);
       var timestampToRecord = (lastRecordedTime === firstTimestamp) ? currentTime : deltaTime;
 
-      recFile.write([timestampToRecord.toFixed(2), encodedHR, lastHRM.confidence, 
-        encodedRaw, hrm.raw].join(",") + "\n");
+      recFile.write([currentTime.toFixed(2), lastHRM.bpm, lastHRM.confidence, 
+        hrm.bpm, hrm.raw].join(",") + "\n");
       lastRecordedTime = currentTime;
     }
     lastHRMTime = samplingTime;

@@ -3,7 +3,7 @@ var settings = {};
 var hrmToggle = true;
 var recFile;
 var lastHRMTime = 0;
-var sampleInterval = 100; // 10Hz (100ms interval)
+var sampleInterval = 40; // 10Hz (100ms interval)
 var lastHRM = null;
 var firstTimestamp = null; // Will be set at first HRM recording
 var lastTimedelta = 0;
@@ -42,7 +42,7 @@ var huffmanHRTable = {
 };
 
 function encodeHuffman(value, table) {
-  return table[value] || "1111111"; // Fallback encoding for out-of-range values
+  return table[value] || "1111111"; // what if value here instead of 1111...??????
 }
 
 function onHRM(hrm) {

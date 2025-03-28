@@ -10,7 +10,7 @@
 var domRecords = document.getElementById("records");
 
 function saveRecord(record,name) {
-  var csv = `${record.map(rec=>[rec.time, rec.bpm, rec.confidence, rec.bpmraw, rec.raw].join(",")).join("\n")}`;
+  var csv = `${record.map(rec=>[rec.time, rec.bpmraw, rec.raw].join(",")).join("\n")}`;
   Util.saveCSV(name, csv);
 }
 
@@ -20,10 +20,8 @@ function recordLineToObject(l, hasRecordNbr) {
   var n = hasRecordNbr?1:0;
   var o = {
     time: parseFloat(t[n+0]),
-    bpm: t[n+1],
-    confidence: parseFloat(t[n+2]),
-    bpmraw: t[n+3],
-    raw: parseFloat(t[n+4]),
+    bpmraw: t[n+1],
+    raw: parseFloat(t[n+2]),
   };
   if (hasRecordNbr)
     o.number = t[0];

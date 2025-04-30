@@ -1,4 +1,4 @@
-"1111111"(() => {
+(() => {
 var settings = {};
 var hrmToggle = true;
 var recFile;
@@ -77,7 +77,6 @@ function onHRMRaw(hrm) {
     lastHRMTime = samplingTime;
   }
 }
-  
   
 function draw() {
   if (!settings.isRecording) return;

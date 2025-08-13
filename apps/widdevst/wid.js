@@ -39,6 +39,8 @@
 
     // usage bar (horizontal at bottom)
     const usedFrac = stat.total ? stat.used / stat.total : 0;
+    
+
     const w = Math.round(usedFrac * 18);
     g.setColor(col(usedFrac));
     g.fillRect(x + 2, y + 12, x + 2 + w, y + 20);
@@ -52,6 +54,16 @@
 
     maybeAlarm();
     setTimeout(draw, Bangle.isLocked() ? 60000 : 5000);
+    
+      // DEBUG LOG
+    console.log(
+      "[devst] used=", stat.used,
+      " total=", stat.total,
+      " free=", stat.free,
+      " frac=", usedFrac.toFixed(4),
+      " w=", w, "(raw=", w.toFixed(2), ")",
+      " rect=(", (x+2), ",", (y+12), ")..(", (x+2+w), ",", (y+20), ")"
+    );
   }
 
   WIDGETS.devst = {

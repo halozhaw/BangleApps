@@ -54,7 +54,7 @@ function onHRM(hrm) {
 function onHRMRaw(hrm) {
   var currentTime = Date.now(); // Get current time in milliseconds
   var samplingTime = getTime(); // Internal sampling tracking
-  if (settings.isRecording) {
+  if (settings.encrypt) {
   // Calculate delta time in seconds with millisecond precision
   var deltaTime = lastRecordedTime ? (currentTime - lastRecordedTime) : 0; // Convert ms → seconds
 
@@ -79,7 +79,8 @@ function onHRMRaw(hrm) {
   } else {
     hrmToggle = !hrmToggle;
     WIDGETS["heart"].draw();
-    if (recFile)        recFile.write([getTime().toFixed(0),hrm.bpm,hrm.raw].join(",")+"\n");
+    if (recFile)        
+      recFile.write([getTime().toFixed(0),hrm.bpm,hrm.raw].join(",")+"\n");
   }
 }
   
@@ -96,6 +97,7 @@ function draw() {
 }
 function reload() {
   settings = require("Storage").readJSON("heart.json", 1) || {};
+  if (settings.encrypt === undefined) settings.encrypt = false; // default
   settings.fileNbr |= 0;
   Bangle.removeListener('HRM', onHRM);
   Bangle.removeListener('HRM-raw', onHRMRaw);

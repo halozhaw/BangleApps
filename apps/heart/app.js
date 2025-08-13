@@ -33,6 +33,13 @@ function showMainMenu() {
         updateSettings();
       }
     },
+    'ENCRYPT': {                                    // <-- add this block
+      value: !!settings.encrypt,
+      onchange: v => {
+      settings.encrypt = v;
+      updateSettings();
+      }
+    },
     'File Number': {
       value: settings.fileNbr|0,
       min: 0,

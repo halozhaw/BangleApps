@@ -54,7 +54,7 @@ function onHRM(hrm) {
 function onHRMRaw(hrm) {
   var currentTime = Date.now(); // Get current time in milliseconds
   var samplingTime = getTime(); // Internal sampling tracking
-
+  if (settings.isRecording) {
   // Calculate delta time in seconds with millisecond precision
   var deltaTime = lastRecordedTime ? (currentTime - lastRecordedTime) : 0; // Convert ms → seconds
 
@@ -75,6 +75,11 @@ function onHRMRaw(hrm) {
       lastRecordedTime = currentTime;
     }
     lastHRMTime = samplingTime;
+  }
+  } else {
+    hrmToggle = !hrmToggle;
+    WIDGETS["heart"].draw();
+    if (recFile)        recFile.write([getTime().toFixed(0),hrm.bpm,hrm.raw].join(",")+"\n");
   }
 }
   

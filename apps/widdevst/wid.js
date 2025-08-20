@@ -46,10 +46,10 @@
     g.fillRect(x + 2, y + 12, x + 2 + w, y + 20);
 
     // label: free kilobytes + "!" when low
-    g.setColor(-1);
+    g.setColor(0);
     g.setFont('4x6', 1);
     const freeKB = Math.max(0, stat.free >> 10);
-    g.drawString(freeKB + "k", x + 3, y + 3);
+    g.drawString(freeKB + "k", x + 3, y + 13);
     if (stat.free <= THRESH) g.drawString("!", x + 15, y + 3);
 
     maybeAlarm();

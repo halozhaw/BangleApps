@@ -1,6 +1,6 @@
 { "id": "widdevst",
   "name": "Device Status Widget",
-  "version": "0.097",
+  "version": "0.098",
   "description": "Shows power status of Bluetooth, Compass, GPS and Heart Rate Monitor as well as storage and memory usage.",
   "icon": "icon.png",
   "type": "widget",

@@ -62,7 +62,7 @@
     g.setFont('4x6', 2);
     const freeKB = Math.max(0, stat.free >> 10);
     g.drawString(freeKB, x + 3, y + 5);
-    if (stat.free <= THRESH) g.drawString("!", x + this.width - 2, y + 3);
+    if (stat.free <= THRESH) g.drawString("!", x + 3, y + 5);
 
       maybeAlarm();
       scheduleNext();

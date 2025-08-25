@@ -5,6 +5,9 @@
   function getStats() {
   const S = require("Storage");
   const st = S.getStats();
+  let lastBuzz = 0;           // persists across calls
+  const COOLDOWN = 60000;     // 60s between buzzes while under threshold
+
 
   stat.total   = st.totalBytes|0;   // total storage
   stat.used    = st.fileBytes|0;    // actual live files
@@ -76,7 +79,7 @@
     g.setFont('4x6', 2);
     const freeKB = Math.max(0, stat.free >> 10);
     g.drawString(freeKB, x + 3, y + 5);
-    if (stat.free <= THRESH) g.drawString("!", (this.width - 2), y + 5);
+    if (stat.free <= THRESH) g.drawString("!", x + (this.width - 2), y + 5);
 
       maybeAlarm();
       scheduleNext();

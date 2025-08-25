@@ -62,7 +62,6 @@
       "[devst] used=", stat.used,
       " total=", stat.total,
       " free=", stat.free,
-      "tresh=", TRESH,
       " frac=", usedFrac.toFixed(4),
       " w=", w, "(raw=", w.toFixed(2), ")",
       " rect=(", (x+2), ",", (y+12), ")..(", (x+2+w), ",", (y+20), ")"

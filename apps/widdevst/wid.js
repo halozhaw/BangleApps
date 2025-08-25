@@ -1,12 +1,13 @@
 (() => {
   const THRESH = 1000*1024; // alarm when FREE bytes <= this
   var stat = { date: 0, used: 0, total: 0, free: 0, alarmed: false };
-
+  let lastBuzz = 0;           // persists across calls
+  const COOLDOWN = 60000;     // 60s between buzzes while under threshold
+  
   function getStats() {
   const S = require("Storage");
   const st = S.getStats();
-  let lastBuzz = 0;           // persists across calls
-  const COOLDOWN = 60000;     // 60s between buzzes while under threshold
+
 
 
   stat.total   = st.totalBytes|0;   // total storage

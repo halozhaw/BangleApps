@@ -20,14 +20,21 @@
     if (stat.free <= THRESH && !stat.alarmed) {
       stat.alarmed = true;
       // double buzz
-      Bangle.buzz(400,0.4);
-      setTimeout(() => Bangle.buzz(400,0.4), 600);
+      Bangle.buzz(400,0.8);
+      setTimeout(() => Bangle.buzz(400,0.8), 600);
     } else if (stat.free > THRESH + 2048) {
       // simple hysteresis so it doesn't spam-buzz
       stat.alarmed = false;
     }
   }
-
+  // self-schedule with proper context
+  let _timer;
+  function scheduleNext() {
+    if (_timer) clearTimeout(_timer);
+    _timer = setTimeout(() => WIDGETS.devst.draw(),
+      Bangle.isLocked() ? 60000 : 5000);
+  }
+  
   function draw() {
     // refresh stats at least once a minute
     if (Date.now() - stat.date > 60000) getStats();
@@ -58,6 +65,7 @@
     if (stat.free <= THRESH) g.drawString("!", x + this.width - 2, y + 3);
 
       maybeAlarm();
+      scheduleNext();
     
       // DEBUG LOG
     console.log(
@@ -78,4 +86,5 @@
 
   getStats();
   draw();
+  scheduleNext();
 })();

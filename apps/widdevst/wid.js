@@ -49,13 +49,13 @@
 
     // label: free kilobytes + "!" when low
     g.setColor(0);
-    g.setFont('4x6', 1);
+    g.setFont('4x6', 2);
     const freeKB = Math.max(0, stat.free >> 10);
-    g.drawString(freeKB + "k", x + 3, y + 13);
+    g.drawString(freeKB, x + 3, y + 13);
     if (stat.free <= THRESH) g.drawString("!", x + 15, y + 3);
 
-    maybeAlarm();
-    setTimeout(draw, Bangle.isLocked() ? 60000 : 5000);
+      maybeAlarm();
+      //setTimeout(draw, Bangle.isLocked() ? 60000 : 5000);
     
       // DEBUG LOG
     console.log(

@@ -16,17 +16,26 @@
     return p < 0.5 ? '#0f0' : (p < 0.8 ? '#f80' : '#f00');
   }
 
-  function maybeAlarm() {
-    if (stat.free <= THRESH && !stat.alarmed) {
-      stat.alarmed = true;
+ // function maybeAlarm() {
+  //  if (stat.free <= THRESH && !stat.alarmed) {
+  //    stat.alarmed = true;
       // double buzz
-      Bangle.buzz(400,0.8);
-      setTimeout(() => Bangle.buzz(400,0.8), 600);
-    } else if (stat.free > THRESH + 2048) {
+ //     Bangle.buzz(400,0.8);
+ //     setTimeout(() => Bangle.buzz(400,0.8), 600);
+ //   } else if (stat.free > THRESH + 2048) {
       // simple hysteresis so it doesn't spam-buzz
-      stat.alarmed = false;
-    }
+  //    stat.alarmed = false;
+  //  }
+  //}
+  function maybeAlarm() {
+  if (stat.free <= THRESH && (Date.now() - lastBuzz) > COOLDOWN) {
+    Bangle.buzz(400, 0.8);
+    setTimeout(() => Bangle.buzz(400, 0.8), 600);
+    lastBuzz = Date.now();
   }
+}
+
+  
   // self-schedule with proper context
   let _timer;
   function tick() {
@@ -67,7 +76,7 @@
     g.setFont('4x6', 2);
     const freeKB = Math.max(0, stat.free >> 10);
     g.drawString(freeKB, x + 3, y + 5);
-    if (stat.free <= THRESH) g.drawString("!", x + 3, y + 5);
+    if (stat.free <= THRESH) g.drawString("!", (this.width - 2), y + 5);
 
       maybeAlarm();
       scheduleNext();

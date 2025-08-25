@@ -34,16 +34,19 @@
 
     const x = this.x, y = this.y;
     g.reset();
-    g.clearRect(x, y, x + 21, y + 23);
+    //g.clearRect(x, y, x + 21, y + 23);
+    g.clearRect(x, y, x + (this.width - 1), y + 23);
 
     // outline
-    g.drawRect(x + 1, y + 1, x + 20, y + 22);
+    //g.drawRect(x + 1, y + 1, x + 20, y + 22);
+    g.drawRect(x + 1, y + 1, x + (this.width - 2), y + 22);
 
     // usage bar (horizontal at bottom)
     const usedFrac = stat.total ? stat.used / stat.total : 0;
     
 
-    const w = Math.round(usedFrac * 18);
+    //const w = Math.round(usedFrac * 18);
+    const w = Math.round(usedFrac * (this.width - 4));
     g.setColor(col(usedFrac));
     g.fillRect(x + 2, y + 12, x + 2 + w, y + 20);
 
@@ -52,10 +55,9 @@
     g.setFont('4x6', 2);
     const freeKB = Math.max(0, stat.free >> 10);
     g.drawString(freeKB, x + 3, y + 5);
-    if (stat.free <= THRESH) g.drawString("!", x + 15, y + 3);
+    if (stat.free <= THRESH) g.drawString("!", x + this.width - 2, y + 3);
 
       maybeAlarm();
-      //setTimeout(draw, Bangle.isLocked() ? 60000 : 5000);
     
       // DEBUG LOG
     console.log(

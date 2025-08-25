@@ -45,7 +45,7 @@
 
     const w = Math.round(usedFrac * 18);
     g.setColor(col(usedFrac));
-    g.fillRect(x + 2, y + 12, x + 2 + w, y + 20);
+    g.fillRect(x + 2, y + 10, x + 2 + w, y + 22);
 
     // label: free kilobytes + "!" when low
     g.setColor(0);

@@ -3,13 +3,14 @@
   var stat = { date: 0, used: 0, total: 0, free: 0, alarmed: false };
 
   function getStats() {
-    const s = require("Storage").getStats();
-    stat.used  = s.fileBytes|0;
-    stat.total = s.totalBytes|0;
-    stat.free  = stat.total - stat.used;
-    stat.freeAfterCompact = (s.freeBytes + s.trashBytes)|0;
-    stat.date  = Date.now();
-  }
+  const S = require("Storage");
+  const st = S.getStats();
+
+  stat.total   = st.totalBytes|0;   // total storage
+  stat.used    = st.fileBytes|0;    // actual live files
+  stat.free    = S.getFree()|0;     // == st.freeBytes (contiguous free, matches About)
+  stat.date    = Date.now();
+}
 
   function col(p) { // p = used fraction
     return p < 0.5 ? '#0f0' : (p < 0.8 ? '#f80' : '#f00');
@@ -61,7 +62,7 @@
       "[devst] used=", stat.used,
       " total=", stat.total,
       " free=", stat.free,
-      "freenow=", stat.freeAfterCompact,
+      "tresh=", TRESH,
       " frac=", usedFrac.toFixed(4),
       " w=", w, "(raw=", w.toFixed(2), ")",
       " rect=(", (x+2), ",", (y+12), ")..(", (x+2+w), ",", (y+20), ")"

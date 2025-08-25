@@ -37,7 +37,7 @@
     g.clearRect(x, y, x + 21, y + 23);
 
     // outline
-    g.drawRect(x + 1, y + 1, x + 20, y + 21);
+    g.drawRect(x + 1, y + 1, x + 20, y + 22);
 
     // usage bar (horizontal at bottom)
     const usedFrac = stat.total ? stat.used / stat.total : 0;
@@ -45,13 +45,13 @@
 
     const w = Math.round(usedFrac * 18);
     g.setColor(col(usedFrac));
-    g.fillRect(x + 2, y + 10, x + 2 + w, y + 22);
+    g.fillRect(x + 2, y + 12, x + 2 + w, y + 20);
 
     // label: free kilobytes + "!" when low
     g.setColor(0);
     g.setFont('4x6', 2);
     const freeKB = Math.max(0, stat.free >> 10);
-    g.drawString(freeKB, x + 3, y + 13);
+    g.drawString(freeKB, x + 3, y + 5);
     if (stat.free <= THRESH) g.drawString("!", x + 15, y + 3);
 
       maybeAlarm();
@@ -70,7 +70,7 @@
 
   WIDGETS.devst = {
     area: "tr",
-    width: 22,
+    width: 40,
     draw: draw
   };
 

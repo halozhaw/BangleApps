@@ -1,5 +1,5 @@
 (() => {
-  const THRESH = 1000; // alarm when FREE bytes <= this
+  const THRESH = 1000*1024; // alarm when FREE bytes <= this
   var stat = { date: 0, used: 0, total: 0, free: 0, alarmed: false };
 
   function getStats() {
@@ -7,6 +7,7 @@
     stat.used  = s.fileBytes|0;
     stat.total = s.totalBytes|0;
     stat.free  = stat.total - stat.used;
+    stat.freeAfterCompact = (s.freeBytes + s.trashBytes)|0;
     stat.date  = Date.now();
   }
 
@@ -60,6 +61,7 @@
       "[devst] used=", stat.used,
       " total=", stat.total,
       " free=", stat.free,
+      "freenow=", stat.freeAfterCompact,
       " frac=", usedFrac.toFixed(4),
       " w=", w, "(raw=", w.toFixed(2), ")",
       " rect=(", (x+2), ",", (y+12), ")..(", (x+2+w), ",", (y+20), ")"

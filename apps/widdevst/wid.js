@@ -29,10 +29,15 @@
   }
   // self-schedule with proper context
   let _timer;
+  function tick() {
+  getStats();        // refresh numbers first
+  maybeAlarm();      // decide whether to buzz
+  WIDGETS.devst.draw(); // then redraw (keeps 'this' correct)
+  scheduleNext();    // re-arm the timer
+}
   function scheduleNext() {
-    if (_timer) clearTimeout(_timer);
-    _timer = setTimeout(() => WIDGETS.devst.draw(),
-      Bangle.isLocked() ? 60000 : 5000);
+  if (_timer) clearTimeout(_timer);
+  _timer = setTimeout(tick, Bangle.isLocked() ? 60000 : 5000);
   }
   
   function draw() {
@@ -66,16 +71,6 @@
 
       maybeAlarm();
       scheduleNext();
-    
-      // DEBUG LOG
-    console.log(
-      "[devst] used=", stat.used,
-      " total=", stat.total,
-      " free=", stat.free,
-      " frac=", usedFrac.toFixed(4),
-      " w=", w, "(raw=", w.toFixed(2), ")",
-      " rect=(", (x+2), ",", (y+12), ")..(", (x+2+w), ",", (y+20), ")"
-    );
   }
 
   WIDGETS.devst = {
